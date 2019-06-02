@@ -1,0 +1,28 @@
+{
+	"buttonL": {
+		"mapTo": "tab",
+		"modifiers": ["control", "shift"]
+	},
+	"buttonR": {
+		"mapTo": "tab",
+		"modifiers": ["control"]
+	},
+	"padUp": {
+		"mapTo": "up"
+	},
+	"padDown": {
+		"mapTo": "down"
+	},
+	"padRight": {
+		"mapTo": "right"
+	},
+	"padLeft": {
+		"mapTo": "left"
+	},
+	"buttonY": {
+		"mapTo": "audio_vol_up"
+	},
+	"buttonX": {
+		"mapTo": "audio_vol_down"
+	}
+}

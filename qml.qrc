@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ui.qml</file>
+        <file>gclayout.png</file>
+    </qresource>
+</RCC>
