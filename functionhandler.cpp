@@ -5,13 +5,17 @@
 #include <string>
 #include <QDebug>
 #include "json.hpp"
+#include <QtQuick/QQuickItem>
+#include <QtQuick/QQuickWindow>
 
 using namespace std;
 using namespace nlohmann;
 
-FunctionHandler::FunctionHandler(QObject *parent) : QObject(parent)
-{
+static QQuickWindow *rootObj;
 
+FunctionHandler::FunctionHandler(QQuickItem *parent) : QQuickItem(parent)
+{
+    rootObj = window();
 }
 
 void FunctionHandler::loadDefaultConfig() {
@@ -21,12 +25,25 @@ void FunctionHandler::loadDefaultConfig() {
     std::string configText((std::istreambuf_iterator<char>(t)),
                      std::istreambuf_iterator<char>());
 
-    json configJson = json::parse(configText)["config"];
+//    QObject *chooser = appWindow->findChild<QObject*>("chooser_LTrigger");
+//    chooser->setProperty("currentText", "mouse_leftclick");
 
-    for (auto it = configJson.begin(); it != configJson.end(); ++it)
-    {
-        qInfo() << QString::fromStdString(it.key()) << ": " << QString::fromStdString(it.value());
-    }
+      qInfo() << (rootObj == nullptr);
+      std::string test = rootObj->objectName().toStdString();
+
+
+//    json configJson = json::parse(configText)["config"];
+
+//    for (auto it = configJson.begin(); it != configJson.end(); ++it)
+//    {
+
+//        qInfo() << QString::fromStdString(it.key()) << ": " << QString::fromStdString(it.value());
+
+//        std::string itemName = "chooser_" + it.key();
+//        QObject *chooser = appWindow->findChild<QObject*>(itemName.c_str());
+//        chooser->setProperty("currentText", "mouse_leftclick");
+//    }
+
 
 //    qInfo() << QString::fromStdString(configText);
 }

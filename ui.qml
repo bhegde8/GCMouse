@@ -2,19 +2,14 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.3
 import QtQuick.Window 2.0
-import net.bhegde.functionhandler 1.0
 
 ApplicationWindow {
     id: appWindow
+    objectName: "appWindow"
     visible: true
     title: qsTr("GCMouse Configuration")
     width: 640
     height: 900
-
-    FunctionHandler {
-        id: fHandler;
-    }
-
 
     ListModel {
         id: chooserList
@@ -204,6 +199,7 @@ ApplicationWindow {
 
                         ComboBox {
                             id: chooser_LTrigger
+                            objectName: "chooser_LTrigger"
                             model: chooserList
                             width: 200
                             anchors.right: parent.right
@@ -252,7 +248,8 @@ ApplicationWindow {
                         width: 640
                         height: 100
                         Text {
-                            id: buttonlabel2
+                            id: testLabel
+                            objectName: "testLabel"
                             text: qsTr("Z Button")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
@@ -932,7 +929,7 @@ ApplicationWindow {
 
                         Button {
                             id: button_saveExit
-                            onClicked: fHandler.loadDefaultConfig();
+
                             text: qsTr("Save and Exit")
                             display: AbstractButton.TextOnly
                             anchors.verticalCenter: parent.verticalCenter
@@ -942,7 +939,7 @@ ApplicationWindow {
 
                         Button {
                             id: button_loadDefaults
-                            onClicked: fHandler.loadDefaultConfig();
+
                             text: qsTr("Load Defaults")
                             anchors.right: parent.right
                             anchors.rightMargin: 50

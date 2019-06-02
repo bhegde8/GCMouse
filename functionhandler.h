@@ -2,12 +2,13 @@
 #define FUNCTIONHANDLER_H
 
 #include <QObject>
+#include <QtQuick/QQuickItem>
 
-class FunctionHandler : public QObject
+class FunctionHandler : public QQuickItem
 {
     Q_OBJECT
 public:
-    explicit FunctionHandler(QObject *parent = nullptr);
+    explicit FunctionHandler(QQuickItem *parent = nullptr);
     Q_INVOKABLE void loadDefaultConfig();
 
 signals:
