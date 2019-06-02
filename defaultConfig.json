@@ -20,7 +20,7 @@
 		"CSTICKDOWNAxis": "mouse_scrolldown",
 		"CSTICKLEFTAxis": "mouse_scrollleft",
 		"CSTICKRIGHTAxis": "mouse_scrollright",
-		"MAINSTICKToggle": "true",
-		"CSTICKToggle": "true"
+		"MAINSTICKToggle": true,
+		"CSTICKToggle": true
 	}
 }

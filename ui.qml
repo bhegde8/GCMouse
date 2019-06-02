@@ -11,6 +11,155 @@ ApplicationWindow {
     width: 640
     height: 900
 
+    signal loadConfig(string filename)
+
+    property var chooserListArray :
+    [
+    "kb_a",
+    "kb_b",
+    "kb_c",
+    "kb_d",
+    "kb_e",
+    "kb_f",
+    "kb_g",
+    "kb_h",
+    "kb_i",
+    "kb_j",
+    "kb_k",
+    "kb_l",
+    "kb_m",
+    "kb_n",
+    "kb_o",
+    "kb_p",
+    "kb_q",
+    "kb_r",
+    "kb_s",
+    "kb_t",
+    "kb_u",
+    "kb_v",
+    "kb_w",
+    "kb_x",
+    "kb_y",
+    "kb_z",
+    "kb_1",
+    "kb_2",
+    "kb_3",
+    "kb_4",
+    "kb_5",
+    "kb_6",
+    "kb_7",
+    "kb_8",
+    "kb_9",
+    "kb_0",
+    "kb_backspace",
+    "kb_delete",
+    "kb_enter",
+    "kb_tab",
+    "kb_escape",
+    "kb_up",
+    "kb_down",
+    "kb_right",
+    "kb_left",
+    "kb_home",
+    "kb_end",
+    "kb_pageup",
+    "kb_pagedown",
+    "kb_f1",
+    "kb_f2",
+    "kb_f3",
+    "kb_f4",
+    "kb_f5",
+    "kb_f6",
+    "kb_f7",
+    "kb_f8",
+    "kb_f9",
+    "kb_f10",
+    "kb_f11",
+    "kb_f12",
+    "kb_command",
+    "kb_alt",
+    "kb_control",
+    "kb_right_shift",
+    "kb_space",
+    "kb_printscreen",
+    "kb_insert",
+    "kb_audio_mute",
+    "kb_audio_vol_down",
+    "kb_audio_vol_up",
+    "kb_audio_play",
+    "kb_audio_stop",
+    "kb_audio_pause",
+    "kb_audio_prev",
+    "kb_audio_next",
+    "kb_audio_rewind",
+    "kb_audio_forward",
+    "kb_audio_repeat",
+    "kb_audio_random",
+    "kb_numpad_0",
+    "kb_numpad_1",
+    "kb_numpad_2",
+    "kb_numpad_3",
+    "kb_numpad_4",
+    "kb_numpad_5",
+    "kb_numpad_6",
+    "kb_numpad_7",
+    "kb_numpad_8",
+    "kb_numpad_9",
+    "kb_audio_prev",
+    "kb_audio_next",
+    "mouse_up",
+    "mouse_down",
+    "mouse_left",
+    "mouse_right",
+    "mouse_scrollup",
+    "mouse_scrolldown",
+    "mouse_scrollleft",
+    "mouse_scrollright",
+    "mouse_leftclick",
+    "mouse_rightclick",
+    "mouse_middleclick"
+    ];
+
+    function getIndex(itemName) {
+        return chooserListArray.indexOf(itemName);
+    }
+
+
+    Connections {
+        target: funcHandler
+        onApplyJsonConfig: {
+            console.log("Received JSON config. Applying...");
+            var obj = JSON.parse(json).config;
+
+            //Unfortunately, limitations with QML prevent me from
+            //iterating through this in a much simpler way.
+            //I have to go through each one individually.
+            chooser_LTrigger.currentIndex = getIndex(obj.LTrigger);
+            chooser_RTrigger.currentIndex = getIndex(obj.RTrigger);
+            chooser_ZButton.currentIndex = getIndex(obj.ZButton);
+            chooser_StartButton.currentIndex = getIndex(obj.StartButton);
+            chooser_XButton.currentIndex = getIndex(obj.XButton);
+            chooser_YButton.currentIndex = getIndex(obj.YButton);
+            chooser_AButton.currentIndex = getIndex(obj.AButton);
+            chooser_BButton.currentIndex = getIndex(obj.BButton);
+            chooser_DPUPButton.currentIndex = getIndex(obj.DPUPButton);
+            chooser_DPDOWNButton.currentIndex = getIndex(obj.DPDOWNButton);
+            chooser_DPRIGHTButton.currentIndex = getIndex(obj.DPRIGHTButton);
+            chooser_DPLEFTButton.currentIndex = getIndex(obj.DPLEFTButton);
+            chooser_MAINSTICKUPAxis.currentIndex = getIndex(obj.MAINSTICKUPAxis);
+            chooser_MAINSTICKDOWNAxis.currentIndex = getIndex(obj.MAINSTICKDOWNAxis);
+            chooser_MAINSTICKLEFTAxis.currentIndex = getIndex(obj.MAINSTICKLEFTAxis);
+            chooser_MAINSTICKRIGHTAxis.currentIndex = getIndex(obj.MAINSTICKRIGHTAxis);
+            chooser_CSTICKUPAxis.currentIndex = getIndex(obj.CSTICKUPAxis);
+            chooser_CSTICKDOWNAxis.currentIndex = getIndex(obj.CSTICKDOWNAxis);
+            chooser_CSTICKLEFTAxis.currentIndex = getIndex(obj.CSTICKLEFTAxis);
+            chooser_CSTICKRIGHTAxis.currentIndex = getIndex(obj.CSTICKRIGHTAxis);
+            chooser_MAINSTICKToggle.checked = obj.MAINSTICKToggle;
+            chooser_CSTICKToggle.checked = obj.CSTICKToggle;
+        }
+    }
+
+
     ListModel {
         id: chooserList
         ListElement { text: "kb_a"; }
@@ -108,17 +257,17 @@ ApplicationWindow {
         ListElement { text: "kb_audio_prev"; }
         ListElement { text: "kb_audio_next"; }
 
-        ListElement { text: "mouse_up" }
-        ListElement { text: "mouse_down" }
-        ListElement { text: "mouse_left" }
-        ListElement { text: "mouse_right" }
-        ListElement { text: "mouse_scrollup" }
-        ListElement { text: "mouse_scrolldown" }
-        ListElement { text: "mouse_scrollleft" }
-        ListElement { text: "mouse_scrollright" }
-        ListElement { text: "mouse_leftclick" }
-        ListElement { text: "mouse_rightclick" }
-        ListElement { text: "mouse_middleclick" }
+        ListElement { text: "mouse_up"; }
+        ListElement { text: "mouse_down"; }
+        ListElement { text: "mouse_left"; }
+        ListElement { text: "mouse_right"; }
+        ListElement { text: "mouse_scrollup"; }
+        ListElement { text: "mouse_scrolldown"; }
+        ListElement { text: "mouse_scrollleft"; }
+        ListElement { text: "mouse_scrollright"; }
+        ListElement { text: "mouse_leftclick"; }
+        ListElement { text: "mouse_rightclick"; }
+        ListElement { text: "mouse_middleclick"; }
     }
 
     Rectangle {
@@ -766,7 +915,7 @@ ApplicationWindow {
                         }
 
                         ComboBox {
-                            id: chooser_CSTICKDOWN
+                            id: chooser_CSTICKDOWNAxis
                             model: chooserList
                             width: 200
                             anchors.right: parent.right
@@ -929,7 +1078,7 @@ ApplicationWindow {
 
                         Button {
                             id: button_saveExit
-
+                            onClicked: appWindow.getQmlObjectByName("test")
                             text: qsTr("Save and Exit")
                             display: AbstractButton.TextOnly
                             anchors.verticalCenter: parent.verticalCenter
@@ -939,7 +1088,7 @@ ApplicationWindow {
 
                         Button {
                             id: button_loadDefaults
-
+                            onClicked: appWindow.loadConfig("defaultConfig.json")
                             text: qsTr("Load Defaults")
                             anchors.right: parent.right
                             anchors.rightMargin: 50
@@ -956,6 +1105,12 @@ ApplicationWindow {
 
 
 }
+
+
+
+
+
+
 
 
 

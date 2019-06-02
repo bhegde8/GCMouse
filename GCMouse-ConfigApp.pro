@@ -25,10 +25,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        funchandler.cpp \
         main.cpp
 
 HEADERS += \
-    json.hpp
+    funchandler.h
 
 FORMS +=
 
