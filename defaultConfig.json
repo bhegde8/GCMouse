@@ -1,28 +1,26 @@
 {
-	"buttonL": {
-		"mapTo": "tab",
-		"modifiers": ["control", "shift"]
-	},
-	"buttonR": {
-		"mapTo": "tab",
-		"modifiers": ["control"]
-	},
-	"padUp": {
-		"mapTo": "up"
-	},
-	"padDown": {
-		"mapTo": "down"
-	},
-	"padRight": {
-		"mapTo": "right"
-	},
-	"padLeft": {
-		"mapTo": "left"
-	},
-	"buttonY": {
-		"mapTo": "audio_vol_up"
-	},
-	"buttonX": {
-		"mapTo": "audio_vol_down"
+	"config": {
+		"LTrigger": "mouse_rightclick",
+		"RTrigger": "mouse_leftclick",
+		"ZButton": "kb_g",
+		"StartButton": "kb_escape",
+		"XButton": "kb_r",
+		"YButton": "kb_tab",
+		"AButton": "kb_space",
+		"BButton": "kb_control",
+		"DPUPButton": "kb_up",
+		"DPDOWNButton": "kb_down",
+		"DPRIGHTButton": "kb_right",
+		"DPLEFTButton": "kb_left",
+		"MAINSTICKUPAxis": "mouse_up",
+		"MAINSTICKDOWNAxis": "mouse_down",
+		"MAINSTICKLEFTAxis": "mouse_left",
+		"MAINSTICKRIGHTAxis": "mouse_right",
+		"CSTICKUPAxis": "mouse_scrollup",
+		"CSTICKDOWNAxis": "mouse_scrolldown",
+		"CSTICKLEFTAxis": "mouse_scrollleft",
+		"CSTICKRIGHTAxis": "mouse_scrollright",
+		"MAINSTICKToggle": "true",
+		"CSTICKToggle": "true"
 	}
 }

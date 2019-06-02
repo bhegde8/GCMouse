@@ -2,15 +2,60 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.3
 import QtQuick.Window 2.0
+import net.bhegde.functionhandler 1.0
 
 ApplicationWindow {
+    id: appWindow
     visible: true
     title: qsTr("GCMouse Configuration")
     width: 640
     height: 900
 
+    FunctionHandler {
+        id: fHandler;
+    }
+
+
     ListModel {
         id: chooserList
+        ListElement { text: "kb_a"; }
+        ListElement { text: "kb_b"; }
+        ListElement { text: "kb_c"; }
+        ListElement { text: "kb_d"; }
+        ListElement { text: "kb_e"; }
+        ListElement { text: "kb_f"; }
+        ListElement { text: "kb_g"; }
+        ListElement { text: "kb_h"; }
+        ListElement { text: "kb_i"; }
+        ListElement { text: "kb_j"; }
+        ListElement { text: "kb_k"; }
+        ListElement { text: "kb_l"; }
+        ListElement { text: "kb_m"; }
+        ListElement { text: "kb_n"; }
+        ListElement { text: "kb_o"; }
+        ListElement { text: "kb_p"; }
+        ListElement { text: "kb_q"; }
+        ListElement { text: "kb_r"; }
+        ListElement { text: "kb_s"; }
+        ListElement { text: "kb_t"; }
+        ListElement { text: "kb_u"; }
+        ListElement { text: "kb_v"; }
+        ListElement { text: "kb_w"; }
+        ListElement { text: "kb_x"; }
+        ListElement { text: "kb_y"; }
+        ListElement { text: "kb_z"; }
+
+        ListElement { text: "kb_1"; }
+        ListElement { text: "kb_2"; }
+        ListElement { text: "kb_3"; }
+        ListElement { text: "kb_4"; }
+        ListElement { text: "kb_5"; }
+        ListElement { text: "kb_6"; }
+        ListElement { text: "kb_7"; }
+        ListElement { text: "kb_8"; }
+        ListElement { text: "kb_9"; }
+        ListElement { text: "kb_0"; }
+
         ListElement { text: "kb_backspace"; }
         ListElement { text: "kb_delete"; }
         ListElement { text: "kb_enter"; }
@@ -841,7 +886,7 @@ ApplicationWindow {
                         }
 
                         CheckBox {
-                            id: option_MAINSTICKToggle
+                            id: chooser_MAINSTICKToggle
                             text: qsTr("Yes")
                             anchors.right: parent.right
                             anchors.rightMargin: 50
@@ -870,7 +915,7 @@ ApplicationWindow {
                         }
 
                         CheckBox {
-                            id: option_CSTICKToggle
+                            id: chooser_CSTICKToggle
                             text: qsTr("Yes")
                             anchors.right: parent.right
                             anchors.rightMargin: 50
@@ -887,6 +932,7 @@ ApplicationWindow {
 
                         Button {
                             id: button_saveExit
+                            onClicked: fHandler.loadDefaultConfig();
                             text: qsTr("Save and Exit")
                             display: AbstractButton.TextOnly
                             anchors.verticalCenter: parent.verticalCenter
@@ -896,6 +942,7 @@ ApplicationWindow {
 
                         Button {
                             id: button_loadDefaults
+                            onClicked: fHandler.loadDefaultConfig();
                             text: qsTr("Load Defaults")
                             anchors.right: parent.right
                             anchors.rightMargin: 50
@@ -909,10 +956,7 @@ ApplicationWindow {
         }
     }
 
-    Connections {
-        target: button_loadDefaults
-        onClicked: print("clicked")
-    }
+
 
 }
 
