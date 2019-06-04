@@ -243,7 +243,7 @@ ApplicationWindow {
             height: 254
             clip: true
             fillMode: Image.PreserveAspectFit
-            source: "gclayout.png"  
+            source: "gclayout.png"
         }
 
 
@@ -1044,27 +1044,14 @@ ApplicationWindow {
 
                 }
             }
-
-            TextInput {
-                id: textInput
-                x: 249
-                y: 43
-                width: 80
-                height: 20
-                text: qsTr("Text Input")
-                font.pixelSize: 12
-
-                Keys.onPressed: {
-                    console.log(event.key + ", ");
-
-                }
-            }
         }
     }
 
 
 
 }
+
+
 
 
 

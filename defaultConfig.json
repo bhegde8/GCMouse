@@ -21,6 +21,6 @@
 		"CSTICKLEFTAxis": "mouse_left",
 		"CSTICKRIGHTAxis": "mouse_right",
 		"MAINSTICKToggle": true,
-		"CSTICKToggle": true
+		"CSTICKToggle": false
 	}
 }
