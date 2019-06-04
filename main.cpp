@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include "functionhandler.h"
 #include <QtQuick/QQuickItem>
 #include <QObject>
 #include <QQmlContext>

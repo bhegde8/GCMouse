@@ -13,6 +13,7 @@ ApplicationWindow {
 
     signal loadConfig(string filename)
 
+    property bool loadedUI: false
     property var chooserListArray :
     [
     "kb_a",
@@ -60,8 +61,6 @@ ApplicationWindow {
     "kb_down",
     "kb_right",
     "kb_left",
-    "kb_home",
-    "kb_end",
     "kb_pageup",
     "kb_pagedown",
     "kb_f1",
@@ -76,52 +75,34 @@ ApplicationWindow {
     "kb_f10",
     "kb_f11",
     "kb_f12",
-    "kb_command",
     "kb_alt",
     "kb_control",
     "kb_right_shift",
     "kb_space",
-    "kb_printscreen",
-    "kb_insert",
-    "kb_audio_mute",
-    "kb_audio_vol_down",
-    "kb_audio_vol_up",
-    "kb_audio_play",
-    "kb_audio_stop",
-    "kb_audio_pause",
-    "kb_audio_prev",
-    "kb_audio_next",
-    "kb_audio_rewind",
-    "kb_audio_forward",
-    "kb_audio_repeat",
-    "kb_audio_random",
-    "kb_numpad_0",
-    "kb_numpad_1",
-    "kb_numpad_2",
-    "kb_numpad_3",
-    "kb_numpad_4",
-    "kb_numpad_5",
-    "kb_numpad_6",
-    "kb_numpad_7",
-    "kb_numpad_8",
-    "kb_numpad_9",
-    "kb_audio_prev",
-    "kb_audio_next",
     "mouse_up",
     "mouse_down",
     "mouse_left",
     "mouse_right",
-    "mouse_scrollup",
-    "mouse_scrolldown",
-    "mouse_scrollleft",
-    "mouse_scrollright",
     "mouse_leftclick",
     "mouse_rightclick",
     "mouse_middleclick"
     ];
 
+    //Used to load the config as soon as this program starts up and the UI has been loaded
+    onAfterSynchronizing: {
+        if (!loadedUI) {
+            console.log("Loading config on app launch");
+            appWindow.loadConfig("config.json")
+            loadedUI = true;
+        }
+    }
+
     function getIndex(itemName) {
         return chooserListArray.indexOf(itemName);
+    }
+
+    function gatherAndSaveConfig() {
+
     }
 
 
@@ -188,7 +169,6 @@ ApplicationWindow {
         ListElement { text: "kb_x"; }
         ListElement { text: "kb_y"; }
         ListElement { text: "kb_z"; }
-
         ListElement { text: "kb_1"; }
         ListElement { text: "kb_2"; }
         ListElement { text: "kb_3"; }
@@ -199,7 +179,6 @@ ApplicationWindow {
         ListElement { text: "kb_8"; }
         ListElement { text: "kb_9"; }
         ListElement { text: "kb_0"; }
-
         ListElement { text: "kb_backspace"; }
         ListElement { text: "kb_delete"; }
         ListElement { text: "kb_enter"; }
@@ -209,8 +188,6 @@ ApplicationWindow {
         ListElement { text: "kb_down"; }
         ListElement { text: "kb_right"; }
         ListElement { text: "kb_left"; }
-        ListElement { text: "kb_home"; }
-        ListElement { text: "kb_end"; }
         ListElement { text: "kb_pageup"; }
         ListElement { text: "kb_pagedown"; }
         ListElement { text: "kb_f1"; }
@@ -225,46 +202,14 @@ ApplicationWindow {
         ListElement { text: "kb_f10"; }
         ListElement { text: "kb_f11"; }
         ListElement { text: "kb_f12"; }
-        ListElement { text: "kb_command"; }
         ListElement { text: "kb_alt"; }
         ListElement { text: "kb_control"; }
         ListElement { text: "kb_right_shift"; }
         ListElement { text: "kb_space"; }
-        ListElement { text: "kb_printscreen"; }
-        ListElement { text: "kb_insert"; }
-        ListElement { text: "kb_audio_mute"; }
-        ListElement { text: "kb_audio_vol_down"; }
-        ListElement { text: "kb_audio_vol_up"; }
-        ListElement { text: "kb_audio_play"; }
-        ListElement { text: "kb_audio_stop"; }
-        ListElement { text: "kb_audio_pause"; }
-        ListElement { text: "kb_audio_prev"; }
-        ListElement { text: "kb_audio_next"; }
-        ListElement { text: "kb_audio_rewind"; }
-        ListElement { text: "kb_audio_forward"; }
-        ListElement { text: "kb_audio_repeat"; }
-        ListElement { text: "kb_audio_random"; }
-        ListElement { text: "kb_numpad_0"; }
-        ListElement { text: "kb_numpad_1"; }
-        ListElement { text: "kb_numpad_2"; }
-        ListElement { text: "kb_numpad_3"; }
-        ListElement { text: "kb_numpad_4"; }
-        ListElement { text: "kb_numpad_5"; }
-        ListElement { text: "kb_numpad_6"; }
-        ListElement { text: "kb_numpad_7"; }
-        ListElement { text: "kb_numpad_8"; }
-        ListElement { text: "kb_numpad_9"; }
-        ListElement { text: "kb_audio_prev"; }
-        ListElement { text: "kb_audio_next"; }
-
         ListElement { text: "mouse_up"; }
         ListElement { text: "mouse_down"; }
         ListElement { text: "mouse_left"; }
         ListElement { text: "mouse_right"; }
-        ListElement { text: "mouse_scrollup"; }
-        ListElement { text: "mouse_scrolldown"; }
-        ListElement { text: "mouse_scrollleft"; }
-        ListElement { text: "mouse_scrollright"; }
         ListElement { text: "mouse_leftclick"; }
         ListElement { text: "mouse_rightclick"; }
         ListElement { text: "mouse_middleclick"; }
@@ -298,7 +243,7 @@ ApplicationWindow {
             height: 254
             clip: true
             fillMode: Image.PreserveAspectFit
-            source: "gclayout.png"
+            source: "gclayout.png"  
         }
 
 
@@ -1096,6 +1041,21 @@ ApplicationWindow {
                         }
                     }
 
+
+                }
+            }
+
+            TextInput {
+                id: textInput
+                x: 249
+                y: 43
+                width: 80
+                height: 20
+                text: qsTr("Text Input")
+                font.pixelSize: 12
+
+                Keys.onPressed: {
+                    console.log(event.key + ", ");
 
                 }
             }
