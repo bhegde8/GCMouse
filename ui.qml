@@ -12,81 +12,12 @@ ApplicationWindow {
     height: 900
 
     signal loadConfig(string filename)
+    signal applyTextChooser(string chooser, string text)
 
     property bool loadedUI: false
-    property var chooserListArray :
-    [
-    "kb_a",
-    "kb_b",
-    "kb_c",
-    "kb_d",
-    "kb_e",
-    "kb_f",
-    "kb_g",
-    "kb_h",
-    "kb_i",
-    "kb_j",
-    "kb_k",
-    "kb_l",
-    "kb_m",
-    "kb_n",
-    "kb_o",
-    "kb_p",
-    "kb_q",
-    "kb_r",
-    "kb_s",
-    "kb_t",
-    "kb_u",
-    "kb_v",
-    "kb_w",
-    "kb_x",
-    "kb_y",
-    "kb_z",
-    "kb_1",
-    "kb_2",
-    "kb_3",
-    "kb_4",
-    "kb_5",
-    "kb_6",
-    "kb_7",
-    "kb_8",
-    "kb_9",
-    "kb_0",
-    "kb_backspace",
-    "kb_delete",
-    "kb_enter",
-    "kb_tab",
-    "kb_escape",
-    "kb_up",
-    "kb_down",
-    "kb_right",
-    "kb_left",
-    "kb_pageup",
-    "kb_pagedown",
-    "kb_f1",
-    "kb_f2",
-    "kb_f3",
-    "kb_f4",
-    "kb_f5",
-    "kb_f6",
-    "kb_f7",
-    "kb_f8",
-    "kb_f9",
-    "kb_f10",
-    "kb_f11",
-    "kb_f12",
-    "kb_alt",
-    "kb_control",
-    "kb_right_shift",
-    "kb_space",
-    "mouse_up",
-    "mouse_down",
-    "mouse_left",
-    "mouse_right",
-    "mouse_leftclick",
-    "mouse_rightclick",
-    "mouse_middleclick"
-    ];
+    property var keyCodes : [65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,49,50,51,52,53,54,55,56,57,48,16777219,16777223,16777220,16777217,16777216,16777235,16777237,16777236,16777234,16777238,16777239,16777264,16777265,16777266,16777267,16777268,16777269,16777270,16777271,16777272,16777273,16777274,16777275,16777251,16777249,16777248,32];
+    property var chooserListArray : ["kb_a","kb_b","kb_c","kb_d","kb_e","kb_f","kb_g","kb_h","kb_i","kb_j","kb_k","kb_l","kb_m","kb_n","kb_o","kb_p","kb_q","kb_r","kb_s","kb_t","kb_u","kb_v","kb_w","kb_x","kb_y","kb_z","kb_1","kb_2","kb_3","kb_4","kb_5","kb_6","kb_7","kb_8","kb_9","kb_0","kb_backspace","kb_delete","kb_enter","kb_tab","kb_escape","kb_up","kb_down","kb_right","kb_left","kb_pageup","kb_pagedown","kb_f1","kb_f2","kb_f3","kb_f4","kb_f5","kb_f6","kb_f7","kb_f8","kb_f9","kb_f10","kb_f11","kb_f12","kb_alt","kb_control","kb_right_shift","kb_space","mouse_up","mouse_down","mouse_left","mouse_right","mouse_leftclick","mouse_rightclick","mouse_middleclick"];
+    property var currentChoosingMouse : "";
 
     //Used to load the config as soon as this program starts up and the UI has been loaded
     onAfterSynchronizing: {
@@ -105,6 +36,27 @@ ApplicationWindow {
 
     }
 
+    function getKeyPress(keyCode) {
+        var keyName = chooserListArray[keyCodes.indexOf(keyCode)];
+        return keyName;
+    }
+
+    function sanitize(text) {
+        if(text[text.length - 1] === text[text.length - 2])
+        {
+            text = text.substring(0, text.length - 1);
+        }
+        if(text === "kb_backspac") {
+            text = "kb_backspace";
+        }
+
+        text = text.replace(/[^0-9a-zA-Z_]/g, "");
+        return text.trim();
+    }
+
+    function handleMousePopup(choice) {
+        applyTextChooser(currentChoosingMouse, choice);
+    }
 
     Connections {
         target: funcHandler
@@ -112,107 +64,181 @@ ApplicationWindow {
             console.log("Received JSON config. Applying...");
             var obj = JSON.parse(json).config;
 
-            //Unfortunately, limitations with QML prevent me from
-            //iterating through this in a much simpler way.
-            //I have to go through each one individually.
-            chooser_LTrigger.currentIndex = getIndex(obj.LTrigger);
-            chooser_RTrigger.currentIndex = getIndex(obj.RTrigger);
-            chooser_ZButton.currentIndex = getIndex(obj.ZButton);
-            chooser_StartButton.currentIndex = getIndex(obj.StartButton);
-            chooser_XButton.currentIndex = getIndex(obj.XButton);
-            chooser_YButton.currentIndex = getIndex(obj.YButton);
-            chooser_AButton.currentIndex = getIndex(obj.AButton);
-            chooser_BButton.currentIndex = getIndex(obj.BButton);
-            chooser_DPUPButton.currentIndex = getIndex(obj.DPUPButton);
-            chooser_DPDOWNButton.currentIndex = getIndex(obj.DPDOWNButton);
-            chooser_DPRIGHTButton.currentIndex = getIndex(obj.DPRIGHTButton);
-            chooser_DPLEFTButton.currentIndex = getIndex(obj.DPLEFTButton);
-            chooser_MAINSTICKUPAxis.currentIndex = getIndex(obj.MAINSTICKUPAxis);
-            chooser_MAINSTICKDOWNAxis.currentIndex = getIndex(obj.MAINSTICKDOWNAxis);
-            chooser_MAINSTICKLEFTAxis.currentIndex = getIndex(obj.MAINSTICKLEFTAxis);
-            chooser_MAINSTICKRIGHTAxis.currentIndex = getIndex(obj.MAINSTICKRIGHTAxis);
-            chooser_CSTICKUPAxis.currentIndex = getIndex(obj.CSTICKUPAxis);
-            chooser_CSTICKDOWNAxis.currentIndex = getIndex(obj.CSTICKDOWNAxis);
-            chooser_CSTICKLEFTAxis.currentIndex = getIndex(obj.CSTICKLEFTAxis);
-            chooser_CSTICKRIGHTAxis.currentIndex = getIndex(obj.CSTICKRIGHTAxis);
-            chooser_MAINSTICKToggle.checked = obj.MAINSTICKToggle;
-            chooser_CSTICKToggle.checked = obj.CSTICKToggle;
+
+            Object.keys(obj).forEach(function(key) {
+                if(!key.endsWith("Hold")) {
+                    applyTextChooser(key, obj[key]);
+                }
+                else {
+                    if(key === "ClickHold") {
+                        chooser_ClickHold.checked = obj.ClickHold;
+                    }
+                    else if(key === "WASDHold") {
+                        chooser_WASDHold.checked = obj.WASDHold;
+                    }
+                }
+            });
+
         }
     }
 
+    Popup {
+        id: popup
+        x: 20
+        y: 350
+        width: 600
+        height: 100
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-    ListModel {
-        id: chooserList
-        ListElement { text: "kb_a"; }
-        ListElement { text: "kb_b"; }
-        ListElement { text: "kb_c"; }
-        ListElement { text: "kb_d"; }
-        ListElement { text: "kb_e"; }
-        ListElement { text: "kb_f"; }
-        ListElement { text: "kb_g"; }
-        ListElement { text: "kb_h"; }
-        ListElement { text: "kb_i"; }
-        ListElement { text: "kb_j"; }
-        ListElement { text: "kb_k"; }
-        ListElement { text: "kb_l"; }
-        ListElement { text: "kb_m"; }
-        ListElement { text: "kb_n"; }
-        ListElement { text: "kb_o"; }
-        ListElement { text: "kb_p"; }
-        ListElement { text: "kb_q"; }
-        ListElement { text: "kb_r"; }
-        ListElement { text: "kb_s"; }
-        ListElement { text: "kb_t"; }
-        ListElement { text: "kb_u"; }
-        ListElement { text: "kb_v"; }
-        ListElement { text: "kb_w"; }
-        ListElement { text: "kb_x"; }
-        ListElement { text: "kb_y"; }
-        ListElement { text: "kb_z"; }
-        ListElement { text: "kb_1"; }
-        ListElement { text: "kb_2"; }
-        ListElement { text: "kb_3"; }
-        ListElement { text: "kb_4"; }
-        ListElement { text: "kb_5"; }
-        ListElement { text: "kb_6"; }
-        ListElement { text: "kb_7"; }
-        ListElement { text: "kb_8"; }
-        ListElement { text: "kb_9"; }
-        ListElement { text: "kb_0"; }
-        ListElement { text: "kb_backspace"; }
-        ListElement { text: "kb_delete"; }
-        ListElement { text: "kb_enter"; }
-        ListElement { text: "kb_tab"; }
-        ListElement { text: "kb_escape"; }
-        ListElement { text: "kb_up"; }
-        ListElement { text: "kb_down"; }
-        ListElement { text: "kb_right"; }
-        ListElement { text: "kb_left"; }
-        ListElement { text: "kb_pageup"; }
-        ListElement { text: "kb_pagedown"; }
-        ListElement { text: "kb_f1"; }
-        ListElement { text: "kb_f2"; }
-        ListElement { text: "kb_f3"; }
-        ListElement { text: "kb_f4"; }
-        ListElement { text: "kb_f5"; }
-        ListElement { text: "kb_f6"; }
-        ListElement { text: "kb_f7"; }
-        ListElement { text: "kb_f8"; }
-        ListElement { text: "kb_f9"; }
-        ListElement { text: "kb_f10"; }
-        ListElement { text: "kb_f11"; }
-        ListElement { text: "kb_f12"; }
-        ListElement { text: "kb_alt"; }
-        ListElement { text: "kb_control"; }
-        ListElement { text: "kb_right_shift"; }
-        ListElement { text: "kb_space"; }
-        ListElement { text: "mouse_up"; }
-        ListElement { text: "mouse_down"; }
-        ListElement { text: "mouse_left"; }
-        ListElement { text: "mouse_right"; }
-        ListElement { text: "mouse_leftclick"; }
-        ListElement { text: "mouse_rightclick"; }
-        ListElement { text: "mouse_middleclick"; }
+        Button {
+            id: popup_click_left
+            y: 24
+            width: 64
+            height: 40
+            text: qsTr("Button")
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            display: AbstractButton.IconOnly
+            icon.source: "icons/click_left.png"
+
+            onClicked: {
+                handleMousePopup("mouse_click_left");
+                popup.close();
+            }
+        }
+
+        Button {
+            id: popup_click_middle
+            x: 4
+            y: 31
+            width: 64
+            height: 40
+            text: qsTr("Button")
+            icon.source: "icons/click_middle.png"
+            anchors.left: popup_click_left.right
+            anchors.leftMargin: 20
+            display: AbstractButton.IconOnly
+            anchors.verticalCenter: parent.verticalCenter
+
+            onClicked: {
+                handleMousePopup("mouse_click_middle");
+                popup.close();
+            }
+        }
+
+        Button {
+            id: popup_click_right
+            x: 4
+            y: 26
+            width: 64
+            height: 40
+            text: qsTr("Button")
+            icon.source: "icons/click_right.png"
+            anchors.left: popup_click_middle.right
+            anchors.leftMargin: 20
+            display: AbstractButton.IconOnly
+            anchors.verticalCenter: parent.verticalCenter
+
+            onClicked: {
+                handleMousePopup("mouse_click_right");
+                popup.close();
+            }
+        }
+
+        Text {
+            id: label1
+            x: 97
+            y: 66
+            text: qsTr("Mouse Buttons")
+            font.pixelSize: 12
+        }
+
+        Button {
+            id: popup_move_left
+            x: 0
+            y: 24
+            width: 64
+            height: 40
+            text: qsTr("Button")
+            icon.source: "icons/move_left.png"
+            anchors.left: popup_click_right.right
+            anchors.leftMargin: 40
+            display: AbstractButton.IconOnly
+            anchors.verticalCenter: parent.verticalCenter
+
+            onClicked: {
+                handleMousePopup("mouse_left");
+                popup.close();
+            }
+        }
+
+        Button {
+            id: popup_move_up
+            x: 4
+            y: 31
+            width: 64
+            height: 40
+            text: qsTr("Button")
+            icon.source: "icons/move_up.png"
+            anchors.left: popup_move_left.right
+            anchors.leftMargin: 10
+            display: AbstractButton.IconOnly
+            anchors.verticalCenter: parent.verticalCenter
+
+            onClicked: {
+                handleMousePopup("mouse_up");
+                popup.close();
+            }
+        }
+
+        Button {
+            id: popup_move_down
+            x: 4
+            y: 26
+            width: 64
+            height: 40
+            text: qsTr("Button")
+            icon.source: "icons/move_down.png"
+            anchors.left: popup_move_up.right
+            anchors.leftMargin: 10
+            display: AbstractButton.IconOnly
+            anchors.verticalCenter: parent.verticalCenter
+
+            onClicked: {
+                handleMousePopup("mouse_down");
+                popup.close();
+            }
+        }
+
+        Text {
+            id: label2
+            x: 362
+            y: 66
+            text: qsTr("Move Mouse in a Direction")
+            font.pixelSize: 12
+        }
+
+        Button {
+            id: popup_move_right
+            x: 1
+            y: 30
+            width: 64
+            height: 40
+            text: qsTr("Button")
+            icon.source: "icons/move_right.png"
+            anchors.left: popup_move_down.right
+            anchors.leftMargin: 10
+            display: AbstractButton.IconOnly
+            anchors.verticalCenter: parent.verticalCenter
+
+            onClicked: {
+                handleMousePopup("mouse_right");
+                popup.close();
+            }
+        }
     }
 
     Rectangle {
@@ -272,6 +298,7 @@ ApplicationWindow {
                     id: column
                     width: 200
                     height: 400
+
                     Row {
                         id: ltrigger_row
                         width: 640
@@ -286,22 +313,47 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_LTrigger
                             objectName: "chooser_LTrigger"
-                            model: chooserList
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "LTrigger";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
@@ -319,64 +371,115 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_RTrigger
-                            model: chooserList
+                            objectName: "chooser_RTrigger"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button1
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "RTrigger";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: z_row
+                        id: zbutton_row
                         width: 640
                         height: 100
                         Text {
-                            id: testLabel
-                            objectName: "testLabel"
+                            id: buttonlabel2
                             text: qsTr("Z Button")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_ZButton
-                            model: chooserList
+                            objectName: "chooser_ZButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button2
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "ZButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: start_row
+                        id: startbutton_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel3
-                            text: qsTr("Start Button")
+                            text: qsTr("Start")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
@@ -384,26 +487,52 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_StartButton
-                            model: chooserList
+                            objectName: "chooser_StartButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button3
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "StartButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: x_row
+                        id: xbutton_row
                         width: 640
                         height: 100
                         Text {
@@ -414,28 +543,54 @@ ApplicationWindow {
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_XButton
-                            model: chooserList
+                            objectName: "chooser_XButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button4
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "XButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: y_row
+                        id: ybutton_row
                         width: 640
                         height: 100
                         Text {
@@ -448,26 +603,52 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_YButton
-                            model: chooserList
+                            objectName: "chooser_YButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button5
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "YButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: a_row
+                        id: abutton_row
                         width: 640
                         height: 100
                         Text {
@@ -478,28 +659,54 @@ ApplicationWindow {
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_AButton
-                            model: chooserList
+                            objectName: "chooser_AButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
+                            font.pointSize: 18
                             anchors.rightMargin: 50
-                            font.pointSize: 8
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button6
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "AButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: b_row
+                        id: bbutton_row
                         width: 640
                         height: 100
                         Text {
@@ -512,26 +719,52 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_BButton
-                            model: chooserList
+                            objectName: "chooser_BButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button7
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "BButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: up_row
+                        id: dpupbutton_row
                         width: 640
                         height: 100
                         Text {
@@ -542,28 +775,54 @@ ApplicationWindow {
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_DPUPButton
-                            model: chooserList
+                            objectName: "chooser_DPUPButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
+                            font.pointSize: 18
                             anchors.rightMargin: 50
-                            font.pointSize: 8
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button8
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "DPUPButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: down_row
+                        id: dpdownbutton_row
                         width: 640
                         height: 100
                         Text {
@@ -576,26 +835,52 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_DPDOWNButton
-                            model: chooserList
+                            objectName: "chooser_DPDOWNButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button9
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "DPDOWNButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: right_row
+                        id: dprightbutton_row
                         width: 640
                         height: 100
                         Text {
@@ -608,26 +893,52 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_DPRIGHTButton
-                            model: chooserList
+                            objectName: "chooser_DPRIGHTButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button10
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "DPRIGHTButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: left_row
+                        id: dpleftbutton_row
                         width: 640
                         height: 100
                         Text {
@@ -638,25 +949,52 @@ ApplicationWindow {
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_DPLEFTButton
-                            model: chooserList
+                            objectName: "chooser_DPLEFTButton"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
+                            font.pointSize: 18
                             anchors.rightMargin: 50
-                            font.pointSize: 8
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button11
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "DPLEFTButton";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
+
 
                     Row {
                         id: separator
@@ -674,19 +1012,19 @@ ApplicationWindow {
                             font.letterSpacing: 0
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
                     }
 
                     Row {
-                        id: mainaxisup_row
+                        id: mainstickupaxis_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel13
-                            text: qsTr("Control Stick UP")
+                            text: qsTr("Main Stick UP")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
@@ -694,95 +1032,173 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_MAINSTICKUPAxis
-                            model: chooserList
+                            objectName: "chooser_MAINSTICKUPAxis"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button13
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "MAINSTICKUPAxis";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: mainaxisdown_row
+                        id: mainstickdownaxis_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel14
-                            text: qsTr("Control Stick DOWN")
+                            text: qsTr("Main Stick DOWN")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_MAINSTICKDOWNAxis
-                            model: chooserList
+                            objectName: "chooser_MAINSTICKDOWNAxis"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
+                            font.pointSize: 18
                             anchors.rightMargin: 50
-                            font.pointSize: 8
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button14
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "MAINSTICKDOWNAxis";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: mainaxisright_row
+                        id: mainstickleftaxis_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel15
-                            text: qsTr("Control Stick RIGHT")
+                            text: qsTr("Main Stick LEFT")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
-                            id: chooser_MAINSTICKRIGHTAxis
-                            model: chooserList
+                        TextInput {
+                            id: chooser_MAINSTICKLEFTAxis
+                            objectName: "chooser_MAINSTICKLEFTAxis"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
+                            font.pointSize: 18
                             anchors.rightMargin: 50
-                            font.pointSize: 8
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button15
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "MAINSTICKLEFTAxis";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: mainaxisleft_row
+                        id: mainstickrightaxis_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel16
-                            text: qsTr("Control Stick LEFT")
+                            text: qsTr("Main Stick RIGHT")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
@@ -790,26 +1206,52 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
-                            id: chooser_MAINSTICKLEFTAxis
-                            model: chooserList
+                        TextInput {
+                            id: chooser_MAINSTICKRIGHTAxis
+                            objectName: "chooser_MAINSTICKRIGHTAxis"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button16
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "MAINSTICKRIGHTAxis";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: caxisup_row
+                        id: cstickupaxis_row
                         width: 640
                         height: 100
                         Text {
@@ -820,28 +1262,54 @@ ApplicationWindow {
                             font.family: "Arial"
                             font.letterSpacing: 0
                             anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_CSTICKUPAxis
-                            model: chooserList
+                            objectName: "chooser_CSTICKUPAxis"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
+                            font.pointSize: 18
                             anchors.rightMargin: 50
-                            font.pointSize: 8
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button17
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "CSTICKUPAxis";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: caxisdown_row
+                        id: cstickdownaxis_row
                         width: 640
                         height: 100
                         Text {
@@ -854,30 +1322,114 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_CSTICKDOWNAxis
-                            model: chooserList
+                            objectName: "chooser_CSTICKDOWNAxis"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
+
+                        Button {
+                            id: button18
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "CSTICKDOWNAxis";
+                                popup.open();
+                            }
+                        }
+
                         visible: true
                     }
 
                     Row {
-                        id: caxisright_row
+                        id: cstickleftaxis_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel19
+                            text: qsTr("C-Stick LEFT")
+                            anchors.leftMargin: 50
+                            verticalAlignment: Text.AlignVCenter
+                            font.family: "Arial"
+                            font.letterSpacing: 0
+                            anchors.left: parent.left
+                            font.wordSpacing: 0
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.bold: false
+                        }
+
+                        TextInput {
+                            id: chooser_CSTICKLEFTAxis
+                            objectName: "chooser_CSTICKLEFTAxis"
+                            width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
+                            anchors.right: parent.right
+                            font.pointSize: 18
+                            anchors.rightMargin: 50
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
+                        }
+
+                        Button {
+                            id: button19
+                            width: 100
+                            text: qsTr("Mouse...")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 270
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "CSTICKLEFTAxis";
+                                popup.open();
+                            }
+                        }
+
+                        visible: true
+                    }
+
+                    Row {
+                        id: cstickrightaxis_row
+                        width: 640
+                        height: 100
+                        Text {
+                            id: buttonlabel20
                             text: qsTr("C-Stick RIGHT")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
@@ -886,53 +1438,47 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
-                        ComboBox {
+                        TextInput {
                             id: chooser_CSTICKRIGHTAxis
-                            model: chooserList
+                            objectName: "chooser_CSTICKRIGHTAxis"
                             width: 200
+                            color: "#d00a0a"
+                            text: "Press a key"
+                            cursorVisible: false
+                            readOnly: false
+                            selectionColor: "#00801c"
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            font.pointSize: 8
+                            font.pointSize: 18
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
-                        }
-                        visible: true
-                    }
 
-                    Row {
-                        id: caxisleft_row
-                        width: 640
-                        height: 100
-                        Text {
-                            id: buttonlabel20
-                            text: qsTr("C-Stick LEFT")
-                            anchors.leftMargin: 50
-                            verticalAlignment: Text.AlignVCenter
-                            font.family: "Arial"
-                            font.letterSpacing: 0
-                            anchors.left: parent.left
-                            horizontalAlignment: Text.AlignHCenter
-                            font.wordSpacing: 0
-                            font.pixelSize: 33
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.bold: false
+                            onTextChanged: {
+                                text = sanitize(text);
+                            }
+
+                            Keys.onPressed: {
+                                text = getKeyPress(event.key);
+                            }
                         }
 
-                        ComboBox {
-                            id: chooser_CSTICKLEFTAxis
-                            model: chooserList
-                            width: 200
+                        Button {
+                            id: button20
+                            width: 100
+                            text: qsTr("Mouse...")
                             anchors.right: parent.right
-                            focusPolicy: Qt.ClickFocus
-                            anchors.rightMargin: 50
-                            font.pointSize: 8
+                            anchors.rightMargin: 270
                             anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                currentChoosingMouse = "CSTICKRIGHTAxis";
+                                popup.open();
+                            }
                         }
+
                         visible: true
                     }
 
@@ -949,7 +1495,7 @@ ApplicationWindow {
                             font.letterSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
                             font.wordSpacing: 0
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -958,12 +1504,12 @@ ApplicationWindow {
                     }
 
                     Row {
-                        id: mainsticktoggle_row
+                        id: clickhold_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel22
-                            text: qsTr("Control Stick: Toggle Keys?")
+                            text: qsTr("Hold Left/Right Click?")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
@@ -971,14 +1517,13 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
                         CheckBox {
-                            id: chooser_MAINSTICKToggle
-                            text: qsTr("Yes")
+                            id: chooser_ClickHold
                             anchors.right: parent.right
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
@@ -987,12 +1532,12 @@ ApplicationWindow {
                     }
 
                     Row {
-                        id: csticktoggle_row
+                        id: wasdhold_row
                         width: 640
                         height: 100
                         Text {
                             id: buttonlabel23
-                            text: qsTr("C-Stick: Toggle Keys?")
+                            text: qsTr("Hold WASD?")
                             anchors.leftMargin: 50
                             verticalAlignment: Text.AlignVCenter
                             font.family: "Arial"
@@ -1000,14 +1545,13 @@ ApplicationWindow {
                             anchors.left: parent.left
                             font.wordSpacing: 0
                             horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 33
+                            font.pixelSize: 26
                             anchors.verticalCenter: parent.verticalCenter
                             font.bold: false
                         }
 
                         CheckBox {
-                            id: chooser_CSTICKToggle
-                            text: qsTr("Yes")
+                            id: chooser_WASDHold
                             anchors.right: parent.right
                             anchors.rightMargin: 50
                             anchors.verticalCenter: parent.verticalCenter
@@ -1023,7 +1567,6 @@ ApplicationWindow {
 
                         Button {
                             id: button_saveExit
-                            onClicked: appWindow.getQmlObjectByName("test")
                             text: qsTr("Save and Exit")
                             display: AbstractButton.TextOnly
                             anchors.verticalCenter: parent.verticalCenter
@@ -1050,6 +1593,22 @@ ApplicationWindow {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

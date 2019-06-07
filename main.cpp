@@ -19,6 +19,9 @@ int main(int argc, char *argv[])
 
     QObject* appWindow = engine.rootObjects().first();
     QObject::connect(appWindow, SIGNAL(loadConfig(QString)), fHandler, SLOT(onLoadConfig(QString)));
+    QObject::connect(appWindow, SIGNAL(applyTextChooser(QString, QString)), fHandler, SLOT(onApplyTextChooser(QString, QString)));
+
+    fHandler->setWindow(appWindow);
 
     app.exec();
 

@@ -1,7 +1,7 @@
 {
 	"config": {
-		"LTrigger": "mouse_rightclick",
-		"RTrigger": "mouse_leftclick",
+		"LTrigger": "mouse_click_right",
+		"RTrigger": "mouse_click_left",
 		"ZButton": "kb_g",
 		"StartButton": "kb_escape",
 		"XButton": "kb_r",
@@ -20,7 +20,7 @@
 		"CSTICKDOWNAxis": "mouse_down",
 		"CSTICKLEFTAxis": "mouse_left",
 		"CSTICKRIGHTAxis": "mouse_right",
-		"MAINSTICKToggle": true,
-		"CSTICKToggle": false
+		"ClickHold": true,
+		"WASDHold": true
 	}
 }
