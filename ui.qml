@@ -13,6 +13,7 @@ ApplicationWindow {
 
     signal loadConfig(string filename)
     signal applyTextChooser(string chooser, string text)
+    signal saveConfig(string configJson)
 
     property bool loadedUI: false
     property var keyCodes : [65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,49,50,51,52,53,54,55,56,57,48,16777219,16777223,16777220,16777217,16777216,16777235,16777237,16777236,16777234,16777238,16777239,16777264,16777265,16777266,16777267,16777268,16777269,16777270,16777271,16777272,16777273,16777274,16777275,16777251,16777249,16777248,32];
@@ -22,7 +23,7 @@ ApplicationWindow {
     //Used to load the config as soon as this program starts up and the UI has been loaded
     onAfterSynchronizing: {
         if (!loadedUI) {
-            console.log("Loading config on app launch");
+//            console.log("Loading config on app launch");
             appWindow.loadConfig("config.json")
             loadedUI = true;
         }
@@ -34,6 +35,37 @@ ApplicationWindow {
 
     function gatherAndSaveConfig() {
 
+        //Can't iterate through these
+        //due to limitations of QML
+        var obj =
+        {
+            "config": {
+                "LTrigger": chooser_LTrigger.text,
+                "RTrigger": chooser_RTrigger.text,
+                "ZButton": chooser_ZButton.text,
+                "StartButton": chooser_StartButton.text,
+                "XButton": chooser_XButton.text,
+                "YButton": chooser_YButton.text,
+                "AButton": chooser_AButton.text,
+                "BButton": chooser_BButton.text,
+                "DPUPButton": chooser_DPUPButton.text,
+                "DPDOWNButton": chooser_DPDOWNButton.text,
+                "DPRIGHTButton": chooser_DPRIGHTButton.text,
+                "DPLEFTButton": chooser_DPLEFTButton.text,
+                "MAINSTICKUPAxis": chooser_MAINSTICKUPAxis.text,
+                "MAINSTICKDOWNAxis": chooser_MAINSTICKDOWNAxis.text,
+                "MAINSTICKLEFTAxis": chooser_MAINSTICKLEFTAxis.text,
+                "MAINSTICKRIGHTAxis": chooser_MAINSTICKRIGHTAxis.text,
+                "CSTICKUPAxis": chooser_CSTICKUPAxis.text,
+                "CSTICKDOWNAxis": chooser_CSTICKDOWNAxis.text,
+                "CSTICKLEFTAxis": chooser_CSTICKLEFTAxis.text,
+                "CSTICKRIGHTAxis": chooser_CSTICKRIGHTAxis.text,
+                "ClickHold": chooser_ClickHold.checked,
+                "WASDHold": chooser_WASDHold.checked
+            }
+        };
+
+        saveConfig(JSON.stringify(obj));
     }
 
     function getKeyPress(keyCode) {
@@ -61,7 +93,7 @@ ApplicationWindow {
     Connections {
         target: funcHandler
         onApplyJsonConfig: {
-            console.log("Received JSON config. Applying...");
+//            console.log("Received JSON config. Applying...");
             var obj = JSON.parse(json).config;
 
 
@@ -1567,6 +1599,10 @@ ApplicationWindow {
 
                         Button {
                             id: button_saveExit
+                            onClicked: {
+                                appWindow.gatherAndSaveConfig();
+                                Qt.quit();
+                            }
                             text: qsTr("Save and Exit")
                             display: AbstractButton.TextOnly
                             anchors.verticalCenter: parent.verticalCenter

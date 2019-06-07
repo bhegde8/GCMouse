@@ -15,7 +15,7 @@ void FuncHandler::setWindow(QObject* window) {
 }
 
 void FuncHandler::onLoadConfig(QString filename) {
-    qInfo() << "Loading config...";
+//    qInfo() << "Loading config...";
 
     std::ifstream t(filename.toStdString());
     std::string configText((std::istreambuf_iterator<char>(t)),
@@ -23,6 +23,11 @@ void FuncHandler::onLoadConfig(QString filename) {
 
 
     emit applyJsonConfig(QString::fromStdString(configText));
+}
+
+void FuncHandler::onSaveConfig(QString configJson) {
+    std::ofstream file("config.json");
+    file << configJson.toStdString();
 }
 
 void FuncHandler::onApplyTextChooser(QString chooser, QString text) {

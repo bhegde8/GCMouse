@@ -18,8 +18,10 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/ui.qml")));
 
     QObject* appWindow = engine.rootObjects().first();
+
     QObject::connect(appWindow, SIGNAL(loadConfig(QString)), fHandler, SLOT(onLoadConfig(QString)));
     QObject::connect(appWindow, SIGNAL(applyTextChooser(QString, QString)), fHandler, SLOT(onApplyTextChooser(QString, QString)));
+    QObject::connect(appWindow, SIGNAL(saveConfig(QString)), fHandler, SLOT(onSaveConfig(QString)));
 
     fHandler->setWindow(appWindow);
 

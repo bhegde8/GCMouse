@@ -18,8 +18,8 @@ signals:
 
 public slots:
     void onLoadConfig(QString fileName);
+    void onSaveConfig(QString configJson);
     void onApplyTextChooser(QString chooser, QString text);
-
 
 };
 
