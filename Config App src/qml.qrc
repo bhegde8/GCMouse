@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ui.qml</file>
+        <file>gclayout.png</file>
+        <file>icons/click_left.png</file>
+        <file>icons/click_middle.png</file>
+        <file>icons/click_right.png</file>
+        <file>icons/move_down.png</file>
+        <file>icons/move_left.png</file>
+        <file>icons/move_right.png</file>
+        <file>icons/move_up.png</file>
+        <file>funchandler.cpp</file>
+        <file>funchandler.h</file>
+        <file>main.cpp</file>
+        <file>mainwindow.cpp</file>
+        <file>mainwindow.h</file>
+    </qresource>
+</RCC>

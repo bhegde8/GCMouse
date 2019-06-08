@@ -1,0 +1,26 @@
+{
+	"config": {
+		"LTrigger": "mouse_click_right",
+		"RTrigger": "mouse_click_left",
+		"ZButton": "kb_g",
+		"StartButton": "kb_escape",
+		"XButton": "kb_r",
+		"YButton": "kb_tab",
+		"AButton": "kb_space",
+		"BButton": "kb_control",
+		"DPUPButton": "kb_up",
+		"DPDOWNButton": "kb_down",
+		"DPRIGHTButton": "kb_right",
+		"DPLEFTButton": "kb_left",
+		"MAINSTICKUPAxis": "kb_w",
+		"MAINSTICKDOWNAxis": "kb_s",
+		"MAINSTICKLEFTAxis": "kb_a",
+		"MAINSTICKRIGHTAxis": "kb_d",
+		"CSTICKUPAxis": "mouse_up",
+		"CSTICKDOWNAxis": "mouse_down",
+		"CSTICKLEFTAxis": "mouse_left",
+		"CSTICKRIGHTAxis": "mouse_right",
+		"ClickHold": true,
+		"WASDHold": true
+	}
+}
