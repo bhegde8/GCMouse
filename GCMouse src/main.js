@@ -56,7 +56,7 @@ gca.pollData(adapter, function(data) {
 
     	
 
-    }
+    });
 
 
 
