@@ -37,7 +37,7 @@ ApplicationWindow {
         //Can't iterate through these
         //due to limitations of QML
         var obj =
-        {
+                {
             "config": {
                 "LTrigger": chooser_LTrigger.text,
                 "RTrigger": chooser_RTrigger.text,
@@ -60,7 +60,8 @@ ApplicationWindow {
                 "CSTICKLEFTAxis": chooser_CSTICKLEFTAxis.text,
                 "CSTICKRIGHTAxis": chooser_CSTICKRIGHTAxis.text,
                 "ClickHold": chooser_ClickHold.checked,
-                "WASDHold": chooser_WASDHold.checked
+                "WASDHold": chooser_WASDHold.checked,
+                "MouseSensitivity": chooser_MouseSensitivity.value
             }
         };
 
@@ -102,7 +103,7 @@ ApplicationWindow {
 
 
             Object.keys(obj).forEach(function(key) {
-                if(!key.endsWith("Hold")) {
+                if(!key.endsWith("Hold") && !key.endsWith("Sensitivity")) {
                     applyTextChooser(key, obj[key]);
                 }
                 else {
@@ -111,6 +112,9 @@ ApplicationWindow {
                     }
                     else if(key === "WASDHold") {
                         chooser_WASDHold.checked = obj.WASDHold;
+                    } else if(key === "MouseSensitivity") {
+                        chooser_MouseSensitivity.value = obj.MouseSensitivity;
+                        label_MouseSensitivity.text = obj.MouseSensitivity;
                     }
                 }
             });
@@ -1596,6 +1600,50 @@ ApplicationWindow {
                     }
 
                     Row {
+                        id: mousesensitivity_row
+                        width: 640
+                        height: 100
+                        Text {
+                            id: buttonlabel24
+                            text: qsTr("Mouse Sensitivity")
+                            anchors.leftMargin: 50
+                            verticalAlignment: Text.AlignVCenter
+                            font.family: "Arial"
+                            font.letterSpacing: 0
+                            anchors.left: parent.left
+                            font.wordSpacing: 0
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 26
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.bold: false
+                        }
+
+                        Slider {
+                            id: chooser_MouseSensitivity
+                            stepSize: 1
+                            to: 100
+                            anchors.right: parent.right
+                            anchors.rightMargin: 50
+                            anchors.verticalCenter: parent.verticalCenter
+                            value: 25
+
+                            onMoved: {
+                                label_MouseSensitivity.text = value;
+                            }
+                        }
+
+                        Text {
+                            id: label_MouseSensitivity
+                            text: qsTr("25")
+                            anchors.right: parent.right
+                            anchors.rightMargin: 275
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.pixelSize: 12
+                        }
+                        visible: true
+                    }
+
+                    Row {
                         id: separator3
                         width: 640
                         height: 100
@@ -1623,6 +1671,7 @@ ApplicationWindow {
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
+
 
 
                 }
@@ -1726,11 +1775,19 @@ ApplicationWindow {
 
 
 
+
+
+
+
+
+
+
+
 /*##^## Designer {
-    D{i:10;anchors_width:200}D{i:13;anchors_width:200}D{i:16;anchors_width:200}D{i:19;anchors_width:200}
-D{i:22;anchors_width:200}D{i:25;anchors_width:200}D{i:28;anchors_width:200}D{i:31;anchors_width:200}
-D{i:34;anchors_width:200}D{i:37;anchors_width:200}D{i:40;anchors_width:200}D{i:43;anchors_width:200}
-D{i:48;anchors_width:200}D{i:51;anchors_width:200}D{i:54;anchors_width:200}D{i:57;anchors_width:200}
-D{i:60;anchors_width:200}D{i:63;anchors_width:200}D{i:66;anchors_width:200}D{i:69;anchors_width:200}
+    D{i:10;anchors_width:200}D{i:13;anchors_width:200}D{i:22;anchors_width:200}D{i:19;anchors_width:200}
+D{i:25;anchors_width:200}D{i:28;anchors_width:200}D{i:34;anchors_width:200}D{i:31;anchors_width:200}
+D{i:37;anchors_width:200}D{i:40;anchors_width:200}D{i:43;anchors_width:200}D{i:48;anchors_width:200}
+D{i:54;anchors_width:200}D{i:51;anchors_width:200}D{i:57;anchors_width:200}D{i:60;anchors_width:200}
+D{i:66;anchors_width:200}D{i:63;anchors_width:200}D{i:69;anchors_width:200}D{i:16;anchors_width:200}
 }
  ##^##*/

@@ -21,6 +21,7 @@
 		"CSTICKLEFTAxis": "mouse_left",
 		"CSTICKRIGHTAxis": "mouse_right",
 		"ClickHold": true,
-		"WASDHold": true
+		"WASDHold": true,
+		"MouseSensitivity": 25
 	}
 }
