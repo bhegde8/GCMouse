@@ -100,8 +100,6 @@ function objectData(data) {
                 'MAINSTICKVertical': (data[5+9*port]/128)-1,
                 'CSTICKHorizontal': (data[6+9*port]/128)-1,
                 'CSTICKVertical': (data[7+9*port]/128)-1,
-                'LAnalog': (data[8+9*port]/128)-1,
-                'RAnalog': (data[9+9*port]/128)-1
             },
             'rumble': false
         }
