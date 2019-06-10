@@ -26,7 +26,7 @@ var programStartTime = Date.now();
 var pollingTimeout = 100;
 var lastButtonTimes = {};
 
-//Account for insignificant axes inputs
+//Account for insignificant axis inputs
 var axisThreshold = 0.1;
 
 //Mouse movement map
@@ -81,29 +81,13 @@ gca.pollData(adapter, function(data) {
     
     //Handle buttons
     Object.keys(buttons).forEach(function(buttonName) {
-    	var buttonActive = (buttons[buttonName] === 1); //whether the button is pressed
+    	var buttonActive = buttons[buttonName]; //whether the button is pressed
     	var buttonCommand = config[buttonName];
 
     	if(buttonActive) {
 
 	    	if(buttonReady(buttonName)) { //account for timeout (only applies to non-holding buttons?)
-
-	    		if(buttonCommand.startsWith("kb")) { //handle keyboard presses
-	    			var key = buttonCommand.substring(3, buttonCommand.length);
-	    			robot.keyTap(key);
-	    		} else if(buttonCommand.startsWith("mouse")) { //handle mouse actions
-
-	    			if(buttonCommand.startsWith("mouse_click")) { //mouse clicks
-	    				var click = buttonCommand.substring(12, buttonCommand.length);
-	    				robot.mouseClick(click, false);
-	    			} else { //mouse movements
-	    				var direction = buttonCommand.substring(6, buttonCommand.length);	
-	    				var curPos = robot.getMousePos();
-
-	    				robot.moveMouse(curPos.x + mouseMovement[direction].xShift, curPos.y + mouseMovement[direction].yShift);
-	    			}
-	    		}
-
+	    		performCommand(buttonCommand);
 	    		buttonTimeout(buttonName);
 	    	}
 
@@ -112,18 +96,70 @@ gca.pollData(adapter, function(data) {
     });
 
     //Handle axes
-    var mainStickDegrees = Math.atan2(axes.MAINSTICKVertical, axes.MAINSTICKHorizontal) * 180/Math.PI;
-    if(mainStickDegrees < 0) { mainStickDegrees += 360; }
-
-    var cStickDegrees = Math.atan2(axes.CSTICKVertical, axes.CSTICKHorizontal) * 180/Math.PI;
-    if(cStickDegrees < 0) { cStickDegrees += 360; }
-
-    //Round degrees to the nearest 45 degree notch
+    //Round degrees to the nearest notch (45 degrees) using a separate function
     //At 45 degree notches, input both directions. At 0, 90, 180, and 270, input only one direction.
+    var directionalAxisInput = {};
 
+    //Main stick
+    if(axes.MAINSTICKVertical != 0 && axes.MAINSTICKHorizontal != 0) {
+    	splitSanitizedAxes("MAINSTICK", directionalAxisInput);
+    }
+
+    //C stick
+    if(axes.CSTICKVertical != 0 && axes.CSTICKHorizontal != 0) {
+    	splitSanitizedAxes("CSTICK", directionalAxisInput);
+    }
+
+    Object.keys(directionalAxisInput).forEach(function(direction) {
+    	var directionActive = directionalAxisInput[direction]; //whether the direction on the stick is being inputted
+    	var directionCommand = config[direction];
+
+    	if(directionActive) {
+    		performCommand(directionCommand);
+    	}
+
+    });
 
     return;
 });
+
+//Get a 0-360 degree measure of the stick's input and split
+//it into 4 directions (up, down, left, and right) for individual processing
+function splitSanitizedAxes(stickName, outputObj) {
+	var stickDegrees = Math.atan2(axes[stickName + "Vertical"], axes[stickName + "Horizontal"]) * 180/Math.PI;
+    if(stickDegrees < 0) { stickDegrees += 360; }
+
+    var stickNotch = nearest45(stickDegrees);
+
+    outputObj[stickName + "UPAxis"] = (stickNotch === 45 || stickNotch === 90 || stickNotch === 135);
+    outputObj[stickName + "DOWNAxis"] = (stickNotch === 225 || stickNotch === 270 || stickNotch === 315);
+    outputObj[stickName + "LEFTAxis"] = (stickNotch === 135 || stickNotch === 180 || stickNotch === 225);
+    outputObj[stickName + "RIGHTAxis"] = (stickNotch === 0 || stickNotch === 45 || stickNotch === 315);	
+}
+
+function nearest45(degrees) {
+	return Math.round(degrees/45.0) * 45;
+}
+
+function performCommand(command) {
+
+	if(command.startsWith("kb")) { //handle keyboard presses
+	    var key = command.substring(3, command.length);
+	    robot.keyTap(key);
+	} else if(command.startsWith("mouse")) { //handle mouse actions
+
+	    if(command.startsWith("mouse_click")) { //mouse clicks
+	    	var click = command.substring(12, command.length);
+	    	robot.mouseClick(click, false);
+	    } else { //mouse movements
+	    	var direction = command.substring(6, command.length);	
+	    	var curPos = robot.getMousePos();
+
+	    	robot.moveMouse(curPos.x + mouseMovement[direction].xShift, curPos.y + mouseMovement[direction].yShift);
+	    }	
+	}
+
+}
 
 function buttonReady(buttonName) {
 	var lastTime = lastButtonTimes[buttonName];
