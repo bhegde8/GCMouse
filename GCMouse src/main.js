@@ -26,6 +26,9 @@ var programStartTime = Date.now();
 var pollingTimeout = 100;
 var lastButtonTimes = {};
 
+//Account for holding buttons
+var heldButtons = {};
+
 //Account for insignificant axis inputs
 var axisThreshold = 0.1;
 
@@ -83,14 +86,17 @@ gca.pollData(adapter, function(data) {
     Object.keys(buttons).forEach(function(buttonName) {
     	var buttonActive = buttons[buttonName]; //whether the button is pressed
     	var buttonCommand = config[buttonName];
+    	var holdStatus = heldButtons[buttonName];
 
     	if(buttonActive) {
 
 	    	if(buttonReady(buttonName)) { //account for timeout (only applies to non-holding buttons?)
-	    		performCommand(buttonCommand);
+	    		performCommand(buttonName, buttonCommand);
 	    		buttonTimeout(buttonName);
 	    	}
 
+    	} else if(holdStatus !== undefined && holdStatus.holding) {
+    		stopHolding(holdStatus);
     	}
 
     });
@@ -113,15 +119,28 @@ gca.pollData(adapter, function(data) {
     Object.keys(directionalAxisInput).forEach(function(direction) {
     	var directionActive = directionalAxisInput[direction]; //whether the direction on the stick is being inputted
     	var directionCommand = config[direction];
+    	var holdStatus = heldButtons[direction];
 
     	if(directionActive) {
-    		performCommand(directionCommand);
+    		performCommand(direction, directionCommand);
+    	} else if(holdStatus !== undefined && holdStatus.holding) {
+    		stopHolding(holdStatus);
     	}
 
     });
 
     return;
 });
+
+function stopHolding(holdStatus) {
+	if(holdStatus.isClick) {
+    	robot.mouseToggle("up", holdStatus.cmd);
+    } else {
+    	robot.keyToggle(holdStatus.cmd, "up");
+    }
+
+    holdStatus.holding = false;
+}
 
 //Get a 0-360 degree measure of the stick's input and split
 //it into 4 directions (up, down, left, and right) for individual processing
@@ -141,16 +160,43 @@ function nearest45(degrees) {
 	return Math.round(degrees/45.0) * 45;
 }
 
-function performCommand(command) {
+function performCommand(button, command) {
 
 	if(command.startsWith("kb")) { //handle keyboard presses
 	    var key = command.substring(3, command.length);
-	    robot.keyTap(key);
+
+	    if(config.WASDHold && (key === "w" || key === "a" || key === "s" || key === "d")) {
+	    	robot.keyToggle(key, "down");
+
+	    	heldButtons[button] = {
+	    		holding: true,
+	    		isClick: false,
+	    		cmd: key
+	    	};
+
+	    } else {
+	    	robot.keyTap(key);	
+	    }
+
 	} else if(command.startsWith("mouse")) { //handle mouse actions
 
 	    if(command.startsWith("mouse_click")) { //mouse clicks
+	    	
 	    	var click = command.substring(12, command.length);
-	    	robot.mouseClick(click, false);
+
+	    	if(config.ClickHold) { //hold the mouse down and release it later
+	    		robot.mouseToggle("down", click);
+
+	    		heldButtons[button] = {
+	    			holding: true,
+	    			isClick: true,
+	    			cmd: click
+	    		};
+
+	    	} else { //click the mouse once
+	    		robot.mouseClick(click, false);
+	    	}	
+	    	
 	    } else { //mouse movements
 	    	var direction = command.substring(6, command.length);	
 	    	var curPos = robot.getMousePos();
