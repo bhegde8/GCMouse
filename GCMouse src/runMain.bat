@@ -1,5 +1,5 @@
 @echo off
-echo GCMouse by Bharath Hegde
+echo GCMouse
 echo.
 echo Note: This program won't work without NodeJS and Python installed,
 echo.

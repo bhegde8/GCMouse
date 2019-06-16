@@ -20,8 +20,8 @@
 		"CSTICKDOWNAxis": "mouse_down",
 		"CSTICKLEFTAxis": "mouse_left",
 		"CSTICKRIGHTAxis": "mouse_right",
-		"ClickHold": true,
-		"WASDHold": true,
+		"ClickHold": false,
+		"WASDHold": false,
 		"MouseSensitivity": 25
 	}
 }
