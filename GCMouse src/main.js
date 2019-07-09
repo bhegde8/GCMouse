@@ -1,7 +1,7 @@
 process.stdin.resume();
 
 var gca = require('./gca.js'); //I modified gca-js for the purpose of this program, so use my modified version instead of the npm version.
-var robot = require('robotjs');
+var robot = require('./robotJSCustom/robotjs'); //custom version of robot JS made by EJTH for relative mouse movement in FPS games
 var fs = require('fs');
 
 var adapter = gca.getAdaptersList()[0];
@@ -64,6 +64,7 @@ var mouseMovement = {
 
 //Start dealing with inputs from the GC adapter
 gca.pollData(adapter, function(data) {
+	
     var controller = gca.objectData(data)[0]; //only look at the controller on Port 1 of the adapter
 
     if(!controller.connected) {
@@ -121,12 +122,12 @@ gca.pollData(adapter, function(data) {
     var directionalAxisInput = {};
 
     //Main stick - convert into notches if it's not the mouse movement 360 stick
-    if(mouse360Stick !== "MAINSTICK" && (axes.MAINSTICKVertical !== 0 || axes.MAINSTICKHorizontal !== 0)) {
+    if(mouse360Stick !== "MAINSTICK") {
     	splitSanitizedAxes(axes, "MAINSTICK", directionalAxisInput);
     }
 
     //C stick - convert into notches if it's not the mouse movement 360 stick
-    if(mouse360Stick !== "CSTICK" && (axes.CSTICKVertical !== 0 || axes.CSTICKHorizontal !== 0)) {
+    if(mouse360Stick !== "CSTICK") {
     	splitSanitizedAxes(axes, "CSTICK", directionalAxisInput);
     }
 
@@ -151,6 +152,10 @@ gca.pollData(adapter, function(data) {
     return;
 });
 
+function objIsEmpty(obj) {
+	return Object.keys(obj).length === 0 && obj.constructor === Object;
+}
+
 function stopHolding(holdStatus) {
 	if(holdStatus.isClick) {
     	robot.mouseToggle("up", holdStatus.cmd);
@@ -164,10 +169,18 @@ function stopHolding(holdStatus) {
 //Get a 0-360 degree measure of the stick's input and split
 //it into 4 directions (up, down, left, and right) for individual processing
 function splitSanitizedAxes(axes, stickName, outputObj) {
-	var stickDegrees = Math.atan2(axes[stickName + "Vertical"], axes[stickName + "Horizontal"]) * 180/Math.PI;
-    if(stickDegrees < 0) { stickDegrees += 360; }
 
-    var stickNotch = nearest45(stickDegrees);
+	var axisVertical = axes[stickName + "Vertical"];
+	var axisHorizontal = axes[stickName + "Horizontal"];
+
+	var stickNotch = -1;
+
+	if(axisVertical !== 0 || axisHorizontal !== 0) {
+		var stickDegrees = Math.atan2(axisVertical, axisHorizontal) * 180/Math.PI;
+    	if(stickDegrees < 0) { stickDegrees += 360; }
+
+    	stickNotch = nearest45(stickDegrees);
+	}
 
     stickNotch = (stickNotch === 360) ? 0 : stickNotch;
 
