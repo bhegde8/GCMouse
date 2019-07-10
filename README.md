@@ -11,7 +11,7 @@ Any adapters not listed here might not work with this software.
 However, as long as the adapter is a WUP-028 device and can work with Dolphin's GameCube controller adapter
 option, there's a good chance it will work here.
 
-* Mayflash GameCube Controller Adapter (Wii U/PC/Switch) --> MUST BE SET TO Wii U/NS mode, not PC mode!
+* Mayflash GameCube Controller Adapter (Wii U/PC/Switch) --> **MUST BE SET TO Wii U/NS mode, not PC mode!**
 * Nintendo GameCube Controller Adapter (Wii U)
 * Nintendo GameCube Controller Adapter (Switch)
 
