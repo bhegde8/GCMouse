@@ -1,28 +1,35 @@
 process.stdin.resume();
 
+//Print basic info
+console.log("GCMouse 1.0");
+console.log("Run the configuration app (GCConfig.exe) to set up your controls");
+console.log("\nYou can minimize this window, but don't close it.");
+
+//Required inclusions
 var gca = require('./gca.js'); //I modified gca-js for the purpose of this program, so use my modified version instead of the npm version.
 var robot = require('./robotJSCustom/robotjs'); //custom version of robot JS made by EJTH for relative mouse movement in FPS games
 var fs = require('fs');
 
-var adapter = gca.getAdaptersList()[0];
+var adapter = gca.getAdaptersList()[0]; //Select the first GameCube controller USB adapter from any connected to the PC. (there'll usually only be 1 anyway)
 
+//Quit the program if no adapter was found
 if(adapter === undefined) {
 	quitProgram("NO GC USB ADAPTER DETECTED. Make sure you have it plugged in, have the drivers set up, and have it set to Wii U mode if it's a Mayflash adapter.");
-	
 } else {
 	gca.startAdapter(adapter);
 }
 
 //Account for initial stick offset
-var gotOffset = false;
-var mainStickInitial = {};
-var cStickInitial = {};
+var gotOffset = false; //whether the initial stick offset has been recorded yet
+var mainStickInitial = {}; //initial stick offset data (horizontal and vertical offset) for the main control stick
+var cStickInitial = {}; //initial stick offset data (horizontal and vertical offset) for the c stick
 
 //Read the button mapping configuration (this is a user editable config file)
 var config = JSON.parse(fs.readFileSync("config.json")).config;
 
-//Special case for mouse movement to be
-//more natural and 360 degree feeling
+//When one of the analog sticks makes the mouse move up, down, left, and right,
+//make the analog stick a "360 degree mouse stick", meaning 
+//the mouse cursor moves "naturally" in a 360 degree range (at a speed based on how far the stick is pressed).
 var mouse360Stick = "";
 
 if(config.CSTICKUPAxis === "mouse_up" && config.CSTICKDOWNAxis === "mouse_down" && config.CSTICKLEFTAxis === "mouse_left" && config.CSTICKRIGHTAxis === "mouse_right") {
@@ -36,13 +43,15 @@ var programStartTime = Date.now();
 var pollingTimeout = 100;
 var lastButtonTimes = {};
 
-//Account for holding buttons
+//Account for holding buttons down (like the WASD keys or holding left click in FPS games)
 var heldButtons = {};
 
-//Account for insignificant axis inputs
+//Account for insignificant axis inputs. Axis inputs must pass this threshold to be registered
 var axisThreshold = 0.1;
 
 //Mouse movement map for non-natural movement (when neither analog stick is set to a 360 degree mouse)
+//Such as when keyboard keys are used to move the mouse. (In these cases, a 360 range isn't possible because
+//keyboard keys can only move in 45 degree angles).
 var mouseMovement = {
 	"up" : {
 		xShift: 0,
@@ -62,7 +71,7 @@ var mouseMovement = {
 	}
 };
 
-//Start dealing with inputs from the GC adapter
+//Main polling loop: deal with inputs from the GC adapter
 gca.pollData(adapter, function(data) {
 	
     var controller = gca.objectData(data)[0]; //only look at the controller on Port 1 of the adapter
@@ -70,10 +79,10 @@ gca.pollData(adapter, function(data) {
     if(!controller.connected) {
     	quitProgram("Controller on Port 1 disconnected. Closing program.");
     }
-
-    //Record the initial x/y position of each axis to account for offset (if it hasn't already been recorded)
+    
     var axes = controller.axes;
 
+	//Record the initial x/y position of each axis to account for offset (if it hasn't already been recorded)
     if(!gotOffset) {
 
         mainStickInitial = {
@@ -90,6 +99,9 @@ gca.pollData(adapter, function(data) {
     }
 
     var buttons = controller.buttons;
+
+    //Sanitize each of the analog stick axes before we use the inputs from them
+    //(e.g. disregard inputs that are too small to pass the threshold, etc.)
     axes = {
     	"MAINSTICKHorizontal": sanitizeAxis(controller.axes.MAINSTICKHorizontal, mainStickInitial.x),
     	"MAINSTICKVertical": sanitizeAxis(controller.axes.MAINSTICKVertical, mainStickInitial.y),
@@ -97,28 +109,30 @@ gca.pollData(adapter, function(data) {
     	"CSTICKVertical": sanitizeAxis(controller.axes.CSTICKVertical, cStickInitial.y)
     };
     
-    //Handle buttons
+    //Handle button presses
     Object.keys(buttons).forEach(function(buttonName) {
     	var buttonActive = buttons[buttonName]; //whether the button is pressed
-    	var buttonCommand = config[buttonName];
-    	var holdStatus = heldButtons[buttonName];
+    	var buttonCommand = config[buttonName]; //what keyboard/mouse event the button should activate
+    	var holdStatus = heldButtons[buttonName]; //whether the button is being held down (instead of single press)
 
-    	if(buttonActive) {
+    	if(buttonActive) { //If the button is being pressed
 
-	    	if(buttonReady(buttonName)) { //account for timeout (only applies to non-holding buttons?)
-	    		performCommand(buttonName, buttonCommand);
-	    		buttonTimeout(buttonName);
+	    	if(buttonReady(buttonName)) { //account for too many rapid preses: make sure the button is "ready" after a timeout to be activated again
+	    		performCommand(buttonName, buttonCommand); //perform the keyboard/mouse event that the button corresponds to
+	    		buttonTimeout(buttonName); //timeout this button to prevent it from being rapidly pressed
 	    	}
 
-    	} else if(holdStatus !== undefined && holdStatus.holding) {
+    	} else if(holdStatus !== undefined && holdStatus.holding) { //If the button is not being pressed, and was being held down, stop holding it down.
     		stopHolding(holdStatus);
     	}
 
     });
 
-    //Handle axes
-    //Round degrees to the nearest notch (45 degrees) using a separate function
+    //Handle analog stick axes
+
+    //Round the angle of the stick's inputted direction to the nearest notch (45 degrees) using a separate function
     //At 45 degree notches, input both directions. At 0, 90, 180, and 270, input only one direction.
+    //However, if the analog stick is designated as a "360 mouse movement stick", move it naturally without rounding to a 45 degree notch.
     var directionalAxisInput = {};
 
     //Main stick - convert into notches if it's not the mouse movement 360 stick
@@ -136,14 +150,15 @@ gca.pollData(adapter, function(data) {
     	moveMouseNatural(axes[mouse360Stick + "Horizontal"], axes[mouse360Stick + "Vertical"]);
     }
 
+    //Handle axis inputs based on each direction (up, down, left, right)
     Object.keys(directionalAxisInput).forEach(function(direction) {
     	var directionActive = directionalAxisInput[direction]; //whether the direction on the stick is being inputted
-    	var directionCommand = config[direction];
-    	var holdStatus = heldButtons[direction];
+    	var directionCommand = config[direction]; //what keyboard/mouse event the direction corresponds to
+    	var holdStatus = heldButtons[direction]; //whether the direction is being held down
 
-    	if(directionActive) {
+    	if(directionActive) { //If the direction is being inputted, perform the corresponding command
     		performCommand(direction, directionCommand);
-    	} else if(holdStatus !== undefined && holdStatus.holding) {
+    	} else if(holdStatus !== undefined && holdStatus.holding) { //If it's not, and the corresponding command is being held down, release it.
     		stopHolding(holdStatus);
     	}
 
@@ -152,10 +167,12 @@ gca.pollData(adapter, function(data) {
     return;
 });
 
+//Test if a JS object is empty
 function objIsEmpty(obj) {
 	return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
 
+//Release (stop holding down) a mouse event/key that is being held down
 function stopHolding(holdStatus) {
 	if(holdStatus.isClick) {
     	robot.mouseToggle("up", holdStatus.cmd);
@@ -190,16 +207,18 @@ function splitSanitizedAxes(axes, stickName, outputObj) {
     outputObj[stickName + "RIGHTAxis"] = (stickNotch === 0 || stickNotch === 45 || stickNotch === 315);	
 }
 
+//Round an angle from 0-360 to the nearest 45 degrees (i.e. an octagonal notch)
 function nearest45(degrees) {
 	return Math.round(degrees/45.0) * 45;
 }
 
+//Perform a keyboard/mouse event
 function performCommand(button, command) {
 
 	if(command.startsWith("kb")) { //handle keyboard presses
-	    var key = command.substring(3, command.length);
+	    var key = command.substring(3, command.length); //Strip the kb_ prefix (e.g. convert kb_enter into enter)
 
-	    if(config.WASDHold && (key === "w" || key === "a" || key === "s" || key === "d")) {
+	    if(config.WASDHold && (key === "w" || key === "a" || key === "s" || key === "d")) { //If WASD holding is on, WASD keys must be held down instead of single pressed.
 	    	robot.keyToggle(key, "down");
 
 	    	heldButtons[button] = {
@@ -208,7 +227,7 @@ function performCommand(button, command) {
 	    		cmd: key
 	    	};
 
-	    } else {
+	    } else { //If WASD holding is off or the key is not w, a, s, or d, just single press the key.
 	    	robot.keyTap(key);	
 	    }
 
@@ -218,7 +237,7 @@ function performCommand(button, command) {
 	    	
 	    	var click = command.substring(12, command.length);
 
-	    	if(config.ClickHold) { //hold the mouse down and release it later
+	    	if(config.ClickHold) { //If click holding is on, clicks must be held down instead of single pressed.
 	    		robot.mouseToggle("down", click);
 
 	    		heldButtons[button] = {
@@ -227,7 +246,7 @@ function performCommand(button, command) {
 	    			cmd: click
 	    		};
 
-	    	} else { //click the mouse once
+	    	} else { //otherwise, click the mouse once
 	    		robot.mouseClick(click, false);
 	    	}	
 	    	
@@ -241,31 +260,38 @@ function performCommand(button, command) {
 
 }
 
+//Move the mouse cursor "naturally". It can move in a 360 degree range and the cursor speed 
+//changes depending on how far the stick is pressed.
 function moveMouseNatural(horizontal, vertical) {
 	var curPos = robot.getMousePos();
 
+	//Scale the horizontal and vertical shift by the mouse sensitivity set in the config
 	horizontal *= config.MouseSensitivity;
 	vertical *= config.MouseSensitivity * -1;
 
-	robot.moveMouseRelative(horizontal, vertical);
+	robot.moveMouseRelative(horizontal, vertical); //Move the mouse cursor relative to where it currently is.
 }
 
+//Check if a button is ready to be pressed (after being timed out)
 function buttonReady(buttonName) {
 	var lastTime = lastButtonTimes[buttonName];
 
 	return lastTime === undefined || (Date.now() > lastTime + pollingTimeout);
 }
 
+//Timeout a button to prevent it from being rapidly pressed
 function buttonTimeout(buttonName) {
 	lastButtonTimes[buttonName] = Date.now();
 }
 
+//Quit the program with a message
 function quitProgram(errorMsg) {
 	console.log("\n" + errorMsg);
     gca.stopAdapter(adapter);
     process.exit();
 }
 
+//Sanitize an analog stick input to see if it passes the threshold to register
 function sanitizeAxis(reading, initial) {
     var change = reading - initial; //get the current input relative to the stick's neutral (initial) position
         

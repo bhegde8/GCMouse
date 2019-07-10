@@ -1,20 +1,19 @@
 # GCMouse
 GameCube Controller to Keyboard/Mouse Software
 
-Still in development
+## Introduction
+This program lets you use a GameCube controller on your PC to control the mouse and keyboard.
+For example, it could allow you to play FPS games on your PC.
 
+## Supported USB Adapters
+Any adapters not listed here might not work with this software.
+However, as long as the adapter is a WUP-028 device and can work with Dolphin's GameCube controller adapter
+option, there's a good chance it will work here.
 
+* Mayflash GameCube Controller Adapter (Wii U/PC/Switch)
+* Nintendo GameCube Controller Adapter (Wii U)
+* Nintendo GameCube Controller Adapter (Switch)
 
-notes:
--For the config app, the key recorder lets the combobox select most of the common keyboard keys. Mouse events are still selected manually
+## Installation
+This section will be updated later
 
--Default config should have main stick toggle keys on, but c-stick toggle keys off
-
--Add options for holding the mouse (toggling it pressed or unpressed)
-
--For the node js app, use a Map where the button's name maps to a JS object containing:
-  1) is it a key or a mouse event
-  2) is toggling applicable
-  3) what key/mouse event to tap/hold down/release from holding, etc)
-  
-  For the axes, you have to manually handle each direction individually

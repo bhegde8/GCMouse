@@ -23,7 +23,7 @@ function startAdapter(adapter) {
         }
     } catch(e) {
         if(e.errno === -12)
-            console.warn("Checking for kernel driver status is not supported in this platform. Kernel will not be detached.");
+            console.warn("");
         else
             console.error(e);
     } finally {
