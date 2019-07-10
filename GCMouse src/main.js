@@ -245,9 +245,9 @@ function moveMouseNatural(horizontal, vertical) {
 	var curPos = robot.getMousePos();
 
 	horizontal *= config.MouseSensitivity;
-	vertical *= config.MouseSensitivity;
+	vertical *= config.MouseSensitivity * -1;
 
-	robot.moveMouse(curPos.x + horizontal, curPos.y + (-1 * vertical));
+	robot.moveMouseRelative(horizontal, vertical);
 }
 
 function buttonReady(buttonName) {
